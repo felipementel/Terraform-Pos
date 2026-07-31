@@ -1,0 +1,60 @@
+variable "repository_name" {
+  description = "The name of the GitHub repository"
+  type        = string
+}
+
+variable "deploy_target" {
+  description = "Where to deploy?"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.deploy_target == null ? true : contains(["ACA", "AKS", "App Service", "Azure Functions", "Static Web App"], var.deploy_target)
+    error_message = "Deploy target must be one of: ACA, AKS, App Service, Azure Functions, Static Web App."
+  }
+}
+
+variable "container_registry" {
+  description = "The container registry domain (e.g., docker.io, ghcr.io, myacr.azurecr.io)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.container_registry == null ? true : can(regex("^(docker\\.io|ghcr\\.io|[a-z0-9][a-z0-9-]*\\.azurecr\\.io)$", var.container_registry))
+    error_message = "Container registry must be docker.io, ghcr.io, or a valid *.azurecr.io registry name."
+  }
+}
+
+variable "sonar_organization" {
+  description = "The SonarCloud organization key"
+  type        = string
+}
+
+variable "sonar_project_name" {
+  description = "The SonarCloud project display name"
+  type        = string
+}
+
+variable "build_version" {
+  description = "Runtime/SDK version used to build the project (e.g., 10 for .NET, 21 for Java, 3.13 for Python, 20 for Node)"
+  type        = string
+  default     = null
+}
+
+variable "framework" {
+  description = "Programming language/runtime of the project (e.g., dotnet, java, python, node)"
+  type        = string
+  default     = null
+}
+
+variable "shared_resource_group_name" {
+  description = "Shared area Resource Group name (creates AZURE_RESOURCE_GROUP_NAME var in repo when set)"
+  type        = string
+  default     = null
+}
+
+variable "shared_acae_name" {
+  description = "Shared Container App Environment base name (creates AZURE_ACAE_BASE var in repo when set)"
+  type        = string
+  default     = null
+}

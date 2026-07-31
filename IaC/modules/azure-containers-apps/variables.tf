@@ -46,18 +46,6 @@ variable "user_assigned_identity_id" {
   type        = string
 }
 
-variable "github_packages_pat" {
-  description = "Personal Access Token for GitHub Packages, used as a secret in Container Apps to authenticate with GitHub Container Registry."
-  type        = string
-  sensitive   = true
-}
-
-variable "dockerhub_pat" {
-  description = "Personal Access Token for Docker Hub, used as a secret in Container Apps to authenticate with Docker Hub."
-  type        = string
-  sensitive   = true
-}
-
 variable "acr_login_server" {
   description = "The login server URL of the Azure Container Registry (e.g., myregistry.azurecr.io)."
   type        = string

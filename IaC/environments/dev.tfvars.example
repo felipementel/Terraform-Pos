@@ -1,13 +1,11 @@
 env_dash_abrev = "-dev"
-project_name = "aug-curitiba"
+project_name = "aug-pos-graduacao"
 rg_location = "Brazil South"
 location = "brazilsouth"
-acr_login_server = "acraugcuritibadev.azurecr.io"
-dockerhub_pat = "dckr_pat_azure-curitiba-azure-curitiba-azure-curitiba-"
-github_packages_pat = "ghp_azure-curitiba-azure-curitiba-azure-curitiba-"
-user_assigned_identity_id = "/subscriptions/azure-curitiba-azure-curitiba/resourceGroups/rg-canal-deploy-dev/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-ca-functions"
-#az identity create -g rg-canal-deploy-dev -n id-ca-functions --location brazilsouth -o json --query "id" -o tsv
+acr_login_server = "acrposgraduacaodev.azurecr.io"
+user_assigned_identity_id = "/subscriptions/pos-graduacao-0000/resourceGroups/rg-high-extert/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-ca-functions"
+#az identity create -g rg-high-extert -n id-ca-functions --location brazilsouth -o json --query "id" -o tsv
 
 # GitHub Actions OIDC
-github_username   = "felipementel"
+github_username   = "high-extert"
 github_repository = "my-repo"

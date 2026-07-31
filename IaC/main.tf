@@ -8,7 +8,16 @@ terraform {
       source  = "hashicorp/azuread"
       version = "~> 3.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.12.1"
+    }
   }
+}
+
+# Configure the GitHub Provider
+provider "github" {
+  owner = var.github_username
 }
 
 provider "azurerm" {
@@ -31,19 +40,19 @@ provider "azuread" {
 data "azurerm_client_config" "current" {}
 
 module "resource_group" {
-  source = "./modulos/resource_group"
+  source = "./modules/azure-resource-group"
 
-  project_name   = var.project_name
-  env_dash_abrev = var.env_dash_abrev
+  project_name   = var.repo_name
+  env_dash_abrev = var.env_abrev_dash
   rg_location    = var.rg_location
 
 }
 
 module "acr" {
-  source = "./modulos/acr"
+  source = "./modules/azure-acr"
 
-  project_name   = var.project_name
-  env_dash_abrev = var.env_dash_abrev
+  project_name   = var.repo_name
+  env_dash_abrev = var.env_abrev_dash
   resource_group = module.resource_group.resource_group_name
   location       = module.resource_group.resource_group_location
 
@@ -51,7 +60,7 @@ module "acr" {
 }
 
 resource "azurerm_user_assigned_identity" "aca_identity" {
-  name                = "id-${var.project_name}${var.env_dash_abrev}"
+  name                = "id-${var.repo_name}${var.env_abrev_dash}"
   resource_group_name = module.resource_group.resource_group_name
   location            = module.resource_group.resource_group_location
 
@@ -73,28 +82,25 @@ resource "azurerm_role_assignment" "acr_push_github" {
 }
 
 module "logs" {
-  source = "./modulos/logs"
+  source = "./modules/azure-logs"
 
-  project_name        = var.project_name
-  env_dash_abrev      = var.env_dash_abrev
+  project_name        = var.repo_name
+  env_dash_abrev      = var.env_abrev_dash
   resource_group_name = module.resource_group.resource_group_name
   location            = module.resource_group.resource_group_location
-  env_abrev           = var.env_dash_abrev
+  env_abrev           = var.env_abrev_dash
 
   depends_on = [module.resource_group]
 }
 
 module "container_apps" {
-  source = "./modulos/containers_apps"
+  source = "./modules/azure-containers-apps"
 
-  project_name                    = var.project_name
-  env_dash_abrev                  = var.env_dash_abrev
+  project_name                    = var.repo_name
+  env_dash_abrev                  = var.env_abrev_dash
   location                        = module.resource_group.resource_group_location
   resource_group_name             = module.resource_group.resource_group_name
-  github_packages_pat             = var.github_packages_pat
-  dockerhub_pat                   = var.dockerhub_pat
   acr_login_server                = module.acr.acr_login_server
-  dockerhub_username              = var.dockerhub_username
   user_assigned_identity_id       = azurerm_user_assigned_identity.aca_identity.id
   log_analytics_workspace_id      = module.logs.log_analytics_workspace_id
   appinsights_connection_string   = module.logs.application_insights_connection_string
@@ -104,4 +110,60 @@ module "container_apps" {
     module.logs,
     azurerm_role_assignment.aca_acr_pull
   ]
+}
+
+module "repo" {
+  source = "./modules/repo"
+
+  name        = var.repo_name
+  description = var.repo_description
+  visibility  = var.repo_visibility
+}
+
+module "repo-env" {
+  source = "./modules/repo-env"
+
+  repository_name = module.repo.repository_name
+}
+
+module "repo-branch" {
+  source = "./modules/repo-branch"
+
+  repository_name = module.repo.repository_name
+}
+
+module "repo-labels" {
+  source = "./modules/repo-labels"
+
+  repository_name = module.repo.repository_name
+}
+
+module "repo-secret" {
+  source = "./modules/repo-secrets"
+
+  repository_name = module.repo.repository_name
+
+  sonar_token           = var.sonar_token
+  sonar_project_key     = var.sonar_project_key
+  snyk_api_key          = var.snyk_api_key
+  azure_client_id       = azuread_application.github_actions_app.client_id
+  azure_tenant_id       = data.azurerm_client_config.current.tenant_id
+  azure_subscription_id = data.azurerm_client_config.current.subscription_id
+
+  otlp_honeycomb_headers = var.otlp_honeycomb_headers
+}
+
+module "repo-var" {
+  source = "./modules/repo-var"
+
+  repository_name    = module.repo.repository_name
+  deploy_target      = var.deploy_target
+  container_registry = var.container_registry
+  sonar_organization = var.sonar_organization
+  sonar_project_name = var.sonar_project_name
+  build_version      = var.build_version
+  framework          = var.framework
+
+  shared_resource_group_name = module.resource_group.resource_group_name
+  shared_acae_name           = module.container_apps.aca_environment_name
 }

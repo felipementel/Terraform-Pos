@@ -11,6 +11,11 @@ resource "azurerm_container_app_environment" "aca_env" {
   }
 }
 
+output "aca_environment_name" {
+  description = "Name of the Container Apps environment."
+  value       = azurerm_container_app_environment.aca_env.name
+}
+
 resource "azurerm_container_app" "container_app" {
   name                         = "ca-${var.project_name}${var.env_dash_abrev}"
   container_app_environment_id = azurerm_container_app_environment.aca_env.id
@@ -24,11 +29,6 @@ resource "azurerm_container_app" "container_app" {
     identity_ids = [var.user_assigned_identity_id]
   }
 
-  secret {
-    name  = "ghcr-pat"
-    value = var.github_packages_pat
-  }
-
   # 1. GitHub Container Registry
   registry {
     server               = "ghcr.io"
@@ -40,11 +40,6 @@ resource "azurerm_container_app" "container_app" {
   registry {
     server   = var.acr_login_server
     identity = var.user_assigned_identity_id
-  }
-
-  secret {
-    name  = "dockerhub-pat"
-    value = var.dockerhub_pat
   }
 
   secret {
@@ -68,16 +63,9 @@ resource "azurerm_container_app" "container_app" {
     min_replicas = 1
     max_replicas = 5
 
-    # container {
-    #   name   = "ca-${var.project_name}${var.env_dash_abrev}"
-    #   image  = "acraugcuritibadev.azurecr.io/felipementel/azurefunctions:1.0-acr-build"
-    #   cpu    = 0.25
-    #   memory = "0.5Gi"
-
     container {
       name  = "container-${var.project_name}${var.env_dash_abrev}"
       image = "mcr.microsoft.com/k8se/quickstart:latest"
-      //image  = "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
       cpu    = 0.25
       memory = "0.5Gi"
 

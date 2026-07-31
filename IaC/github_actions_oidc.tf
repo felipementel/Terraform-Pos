@@ -1,6 +1,6 @@
 # Entra ID Application (App Registration) for GitHub Actions
 resource "azuread_application" "github_actions_app" {
-  display_name = "github-actions-${var.project_name}"
+  display_name = "github-actions-${var.repo_name}"
   owners       = [data.azurerm_client_config.current.object_id]
 }
 
@@ -27,7 +27,7 @@ resource "azuread_application_federated_identity_credential" "github_actions_oid
   description    = "Allows GitHub Actions to authenticate using OIDC for deploying to Azure Container Apps"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
-  subject        = "repo:${var.github_username}/${var.github_repository}:ref:refs/heads/main"
+  subject        = "repo:${var.github_username}/${var.repo_name}:ref:refs/heads/main"
 }
 
 output "github_actions_client_id" {
