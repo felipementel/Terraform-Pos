@@ -117,21 +117,9 @@ variable "framework" {
   default     = null
 }
 
-variable "registry_username" {
-  description = "Username for GitHub Container Registry (ghcr.io)."
-  type        = string
-  default     = "felipementel"
-}
-
 variable "otlp_honeycomb_headers" {
   description = "Honeycomb OTLP auth header value (x-honeycomb-team={api-key})."
   type        = string
   sensitive   = true
   default     = null
-}
-
-variable "container_port" {
-  description = "Port the container listens on. Used for ACA ingress targetPort and health probes."
-  type        = number
-  default     = 8080
 }

@@ -9,9 +9,7 @@ variable "location" {
 
   validation {
     condition = contains([
-      "brazilsouth",
-      "eastus2",
-      "centralus"
+      "brazilsouth"
     ], var.location)
     error_message = "Location must be a valid Azure region."
   }

@@ -50,8 +50,8 @@ resource "azurerm_container_app" "container_app" {
     max_replicas = 5
 
     container {
-      name  = "container-${var.project_name}${var.env_dash_abrev}"
-      image = "mcr.microsoft.com/k8se/quickstart:latest"
+      name   = "container-${var.project_name}${var.env_dash_abrev}"
+      image  = "mcr.microsoft.com/k8se/quickstart:latest"
       cpu    = 0.25
       memory = "0.5Gi"
 
