@@ -10,7 +10,7 @@ terraform {
     }
     github = {
       source  = "integrations/github"
-      version = "~> 6.12.1"
+      version = "~> 6.13.0"
     }
   }
 }
@@ -48,6 +48,14 @@ module "resource_group" {
 
 }
 
+resource "azurerm_user_assigned_identity" "aca_identity" {
+  name                = "id-${var.repo_name}${var.env_abrev_dash}"
+  resource_group_name = module.resource_group.resource_group_name
+  location            = module.resource_group.resource_group_location
+
+  depends_on = [module.resource_group]
+}
+
 module "acr" {
   source = "./modules/azure-acr"
 
@@ -55,14 +63,6 @@ module "acr" {
   env_dash_abrev = var.env_abrev_dash
   resource_group = module.resource_group.resource_group_name
   location       = module.resource_group.resource_group_location
-
-  depends_on = [module.resource_group]
-}
-
-resource "azurerm_user_assigned_identity" "aca_identity" {
-  name                = "id-${var.repo_name}${var.env_abrev_dash}"
-  resource_group_name = module.resource_group.resource_group_name
-  location            = module.resource_group.resource_group_location
 
   depends_on = [module.resource_group]
 }
