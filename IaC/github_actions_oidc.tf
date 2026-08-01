@@ -23,7 +23,7 @@ resource "azurerm_role_assignment" "github_actions_contributor" {
 # Federated Identity Credential — allows GitHub Actions to authenticate via OIDC (no secrets needed)
 resource "azuread_application_federated_identity_credential" "github_actions_oidc" {
   application_id = azuread_application.github_actions_app.id
-  display_name   = "github-actions-deploy"
+  display_name   = "github-actions-pos-graduacao"
   description    = "Allows GitHub Actions to authenticate using OIDC for deploying to Azure Container Apps"
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"

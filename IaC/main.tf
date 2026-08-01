@@ -81,6 +81,21 @@ resource "azurerm_role_assignment" "acr_push_github" {
   depends_on = [module.acr]
 }
 
+module "azure-sql" {
+  source = "./modules/azure-sql-database"
+
+  project_name        = var.repo_name
+  env_dash_abrev      = var.env_abrev_dash
+  environment         = replace(var.env_abrev_dash, "-", "")
+  resource_group_name = module.resource_group.resource_group_name
+  location            = module.resource_group.resource_group_location
+
+  sqbdb_users_max_size_gb = var.sqbdb_users_max_size_gb
+  sqbdb_users_sku_name    = var.sqbdb_users_sku_name
+
+  depends_on = [module.resource_group]
+}
+
 module "logs" {
   source = "./modules/azure-logs"
 
@@ -99,7 +114,6 @@ module "container_apps" {
   env_dash_abrev                  = var.env_abrev_dash
   location                        = module.resource_group.resource_group_location
   resource_group_name             = module.resource_group.resource_group_name
-  acr_login_server                = module.acr.acr_login_server
   user_assigned_identity_id       = azurerm_user_assigned_identity.aca_identity.id
   log_analytics_workspace_id      = module.logs.log_analytics_workspace_id
   appinsights_connection_string   = module.logs.application_insights_connection_string
@@ -124,7 +138,7 @@ module "repo-env" {
 
   repository_name = module.repo.repository_name
 
-  depends_on = [ module.repo ]
+  depends_on = [module.repo]
 }
 
 # module "repo-branch" {
@@ -140,7 +154,7 @@ module "repo-labels" {
 
   repository_name = module.repo.repository_name
 
-  depends_on = [ module.repo ]
+  depends_on = [module.repo]
 }
 
 module "repo-secret" {
@@ -157,7 +171,7 @@ module "repo-secret" {
 
   otlp_honeycomb_headers = var.otlp_honeycomb_headers
 
-  depends_on = [ module.repo ]
+  depends_on = [module.repo]
 }
 
 module "repo-var" {
@@ -171,5 +185,5 @@ module "repo-var" {
   build_version      = var.build_version
   framework          = var.framework
 
-  depends_on = [ module.repo ]
+  depends_on = [module.repo]
 }

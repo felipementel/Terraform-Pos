@@ -78,6 +78,17 @@ variable "env_abrev_dash" {
   default     = ""
 }
 
+# SQL Database
+variable "sqbdb_users_max_size_gb" {
+  description = "The maximum size in GB for the SQL Database used for data user."
+  type        = number
+}
+
+variable "sqbdb_users_sku_name" {
+  description = "The SKU name for the SQL Database used for data user."
+  type        = string
+}
+
 variable "deploy_target" {
   description = "The target platform for deployment (ACA, AKS, App Service, Azure Functions, Static Web App). Optional for destroy/recreate."
   type        = string

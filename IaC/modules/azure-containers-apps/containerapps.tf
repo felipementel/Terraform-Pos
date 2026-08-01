@@ -29,12 +29,6 @@ resource "azurerm_container_app" "container_app" {
     identity_ids = [var.user_assigned_identity_id]
   }
 
-  # 2. Azure Container Registry (com identidade gerenciada)
-  registry {
-    server   = var.acr_login_server
-    identity = var.user_assigned_identity_id
-  }
-
   secret {
     name  = "appinsights-connection-string"
     value = var.appinsights_connection_string
@@ -100,7 +94,7 @@ resource "azurerm_container_app" "container_app" {
   }
 
   tags = {
-    environment = var.env_dash_abrev
+    environment = replace(var.env_dash_abrev, "-", "")
   }
 
   depends_on = [

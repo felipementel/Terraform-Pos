@@ -32,11 +32,6 @@ variable "user_assigned_identity_id" {
   type        = string
 }
 
-variable "acr_login_server" {
-  description = "The login server URL of the Azure Container Registry (e.g., myregistry.azurecr.io)."
-  type        = string
-}
-
 variable "log_analytics_workspace_id" {
   description = "The ID of the Log Analytics Workspace."
   type        = string

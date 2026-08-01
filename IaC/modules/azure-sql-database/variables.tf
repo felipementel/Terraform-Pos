@@ -39,22 +39,12 @@ variable "client_public_ips" {
 }
 
 # SQL Database
-variable "sqbdb_import_max_size_gb" {
-  description = "The maximum size in GB for the SQL Database used for data import."
+variable "sqbdb_users_max_size_gb" {
+  description = "The maximum size in GB for the SQL Database used for data user."
   type        = number
 }
 
-variable "sqbdb_import_sku_name" {
-  description = "The SKU name for the SQL Database used for data import."
-  type        = string
-}
-
-variable "sqbdb_portal_max_size_gb" {
-  description = "The maximum size in GB for the SQL Database used for the portal."
-  type        = number
-}
-
-variable "sqbdb_portal_sku_name" {
-  description = "The SKU name for the SQL Database used for the portal."
+variable "sqbdb_users_sku_name" {
+  description = "The SKU name for the SQL Database used for data user."
   type        = string
 }

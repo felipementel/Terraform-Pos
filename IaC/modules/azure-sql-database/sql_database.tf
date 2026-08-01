@@ -40,41 +40,13 @@ resource "azurerm_mssql_firewall_rule" "allow_azure_services" {
   end_ip_address   = "0.0.0.0"
 }
 
-resource "azurerm_mssql_database" "sqbdb_import" {
-  name                                = "sql-db-import"
+resource "azurerm_mssql_database" "sqbdb_users" {
+  name                                = "sql-db-users"
   server_id                           = azurerm_mssql_server.sql.id
   collation                           = "SQL_Latin1_General_CP1_CI_AS"
   license_type                        = "LicenseIncluded"
-  max_size_gb                         = var.sqbdb_import_max_size_gb
-  sku_name                            = var.sqbdb_import_sku_name
-  enclave_type                        = "VBS"
-  storage_account_type                = "Local"
-  transparent_data_encryption_enabled = true
-  zone_redundant                      = false
-  long_term_retention_policy {
-    monthly_retention = "PT0S"
-    week_of_year      = 1
-    weekly_retention  = "PT0S"
-    yearly_retention  = "PT0S"
-  }
-
-  tags = {
-    environment = var.environment
-  }
-
-  # prevent the possibility of accidental data loss
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "azurerm_mssql_database" "sqbdb_portal" {
-  name                                = "sql-db-portal"
-  server_id                           = azurerm_mssql_server.sql.id
-  collation                           = "SQL_Latin1_General_CP1_CI_AS"
-  license_type                        = "LicenseIncluded"
-  max_size_gb                         = var.sqbdb_portal_max_size_gb
-  sku_name                            = var.sqbdb_portal_sku_name
+  max_size_gb                         = var.sqbdb_users_max_size_gb
+  sku_name                            = var.sqbdb_users_sku_name
   enclave_type                        = "VBS"
   storage_account_type                = "Local"
   transparent_data_encryption_enabled = true
