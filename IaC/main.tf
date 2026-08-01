@@ -164,6 +164,6 @@ module "repo-var" {
   build_version      = var.build_version
   framework          = var.framework
 
-  shared_resource_group_name = module.resource_group.resource_group_name
-  shared_acae_name           = module.container_apps.aca_environment_name
+  resource_group_name = module.resource_group.resource_group_name
+  acae_name           = module.container_apps.aca_environment_name
 }

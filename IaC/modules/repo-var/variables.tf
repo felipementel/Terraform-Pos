@@ -47,14 +47,14 @@ variable "framework" {
   default     = null
 }
 
-variable "shared_resource_group_name" {
-  description = "Shared area Resource Group name (creates AZURE_RESOURCE_GROUP_NAME var in repo when set)"
+variable "resource_group_name" {
+  description = "Resource Group name (creates AZURE_RESOURCE_GROUP_NAME var in repo when set)"
   type        = string
   default     = null
 }
 
-variable "shared_acae_name" {
-  description = "Shared Container App Environment base name (creates AZURE_ACAE_BASE var in repo when set)"
+variable "acae_name" {
+  description = "Container App Environment base name (creates AZURE_ACAE_BASE var in repo when set)"
   type        = string
   default     = null
 }

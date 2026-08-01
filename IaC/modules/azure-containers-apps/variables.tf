@@ -51,12 +51,6 @@ variable "acr_login_server" {
   type        = string
 }
 
-variable "dockerhub_username" {
-  description = "The username for Docker Hub authentication."
-  type        = string
-  default     = "felipementel"
-}
-
 variable "log_analytics_workspace_id" {
   description = "The ID of the Log Analytics Workspace."
   type        = string

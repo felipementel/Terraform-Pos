@@ -29,13 +29,6 @@ resource "azurerm_container_app" "container_app" {
     identity_ids = [var.user_assigned_identity_id]
   }
 
-  # 1. GitHub Container Registry
-  registry {
-    server               = "ghcr.io"
-    username             = var.registry_username
-    password_secret_name = "ghcr-pat"
-  }
-
   # 2. Azure Container Registry (com identidade gerenciada)
   registry {
     server   = var.acr_login_server
@@ -50,13 +43,6 @@ resource "azurerm_container_app" "container_app" {
   secret {
     name  = "appinsights-instrumentation-key"
     value = var.appinsights_instrumentation_key
-  }
-
-  # 3. Docker Hub (ou outro)
-  registry {
-    server               = "docker.io"
-    username             = var.dockerhub_username
-    password_secret_name = "dockerhub-pat"
   }
 
   template {
