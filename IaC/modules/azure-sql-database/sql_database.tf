@@ -58,13 +58,6 @@ resource "azurerm_mssql_database" "sqbdb_import" {
     yearly_retention  = "PT0S"
   }
 
-  threat_detection_policy {
-    disabled_alerts      = []
-    email_account_admins = "Disabled"
-    email_addresses      = []
-    retention_days       = 0
-    state                = "Disabled"
-  }
   tags = {
     environment = var.environment
   }

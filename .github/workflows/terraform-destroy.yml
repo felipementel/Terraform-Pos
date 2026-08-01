@@ -1,0 +1,92 @@
+name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment configuration to destroy
+        required: true
+        type: choice
+        options: [dev, hom]
+      repo_name:
+        description: Repository name managed by Terraform
+        required: true
+      confirmation:
+        description: Type DESTROY to continue
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  destroy:
+    name: Destroy ${{ inputs.environment }}
+    if: ${{ inputs.confirmation == 'DESTROY' }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+        working-directory: IaC
+    env:
+      GITHUB_TOKEN: ${{ secrets.TF_VAR_GITHUB_TOKEN }}
+      TF_VAR_repo_name: ${{ inputs.repo_name }}
+      TF_VAR_github_username: ${{ vars.GITHUB_USERNAME }}
+      TF_VAR_sonar_token: ${{ secrets.TF_VAR_SONAR_TOKEN }}
+      TF_VAR_sonar_project_key: ${{ inputs.repo_name }}
+      TF_VAR_sonar_project_name: ${{ inputs.repo_name }}
+      TF_VAR_sonar_organization: ${{ vars.SONAR_ORGANIZATION }}
+      TF_VAR_snyk_api_key: ${{ secrets.TF_VAR_SNYK_API_KEY }}
+      STORAGE_ACCOUNT_NAME: ${{ vars.TF_STATE_STORAGE_ACCOUNT }}
+      STORAGE_CONTAINER_NAME: ${{ vars.TF_STATE_STORAGE_CONTAINER }}
+      STORAGE_SAS_TOKEN: ${{ secrets.AZURE_STORAGE_ACCOUNT_SAS_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure Azure and Terraform credentials
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          set -euo pipefail
+          echo "TF_VAR_arm_client_id=$(jq -r '.clientId' <<< "$AZURE_CREDENTIALS")" >> "$GITHUB_ENV"
+          echo "TF_VAR_arm_client_secret=$(jq -r '.clientSecret' <<< "$AZURE_CREDENTIALS")" >> "$GITHUB_ENV"
+          echo "TF_VAR_arm_subscription_id=$(jq -r '.subscriptionId' <<< "$AZURE_CREDENTIALS")" >> "$GITHUB_ENV"
+          echo "TF_VAR_arm_tenant_id=$(jq -r '.tenantId' <<< "$AZURE_CREDENTIALS")" >> "$GITHUB_ENV"
+
+      - uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Restore Terraform state
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$STORAGE_SAS_TOKEN"
+          SAS="$(printf '%s' "$STORAGE_SAS_TOKEN" | sed 's|^https://[^?]*?||; s/^?//')"
+          az storage blob download --only-show-errors \
+            --account-name "$STORAGE_ACCOUNT_NAME" \
+            --container-name "$STORAGE_CONTAINER_NAME" \
+            --name "${{ inputs.repo_name }}/terraform-${{ inputs.environment }}.tfstate" \
+            --file terraform.tfstate \
+            --sas-token "$SAS"
+
+      - name: Terraform destroy
+        run: |
+          terraform init -backend=false
+          terraform plan -destroy -out=tfplan.destroy -var-file="environments/${{ inputs.environment }}.tfvars"
+          terraform apply -auto-approve tfplan.destroy
+
+      - name: Remove Terraform state
+        if: success()
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$STORAGE_SAS_TOKEN"
+          SAS="$(printf '%s' "$STORAGE_SAS_TOKEN" | sed 's|^https://[^?]*?||; s/^?//')"
+          az storage blob delete --only-show-errors \
+            --account-name "$STORAGE_ACCOUNT_NAME" \
+            --container-name "$STORAGE_CONTAINER_NAME" \
+            --name "${{ inputs.repo_name }}/terraform-${{ inputs.environment }}.tfstate" \
+            --sas-token "$SAS"

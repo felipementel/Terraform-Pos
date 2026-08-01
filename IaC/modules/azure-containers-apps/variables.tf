@@ -21,22 +21,10 @@ variable "resource_group_name" {
 
 }
 
-variable "env_abrev" {
-  description = "The suffix to be added to resource names based on the environment."
-  type        = string
-  default     = ""
-}
-
 variable "env_dash_abrev" {
   description = "The suffix with dash to be added to resource names based on the environment."
   type        = string
   default     = ""
-}
-
-variable "registry_username" {
-  description = "The registry username used to pull images"
-  type        = string
-  default     = "felipementel"
 }
 
 variable "user_assigned_identity_id" {

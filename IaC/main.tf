@@ -88,7 +88,6 @@ module "logs" {
   env_dash_abrev      = var.env_abrev_dash
   resource_group_name = module.resource_group.resource_group_name
   location            = module.resource_group.resource_group_location
-  env_abrev           = var.env_abrev_dash
 
   depends_on = [module.resource_group]
 }
@@ -124,18 +123,24 @@ module "repo-env" {
   source = "./modules/repo-env"
 
   repository_name = module.repo.repository_name
+
+  depends_on = [ module.repo ]
 }
 
-module "repo-branch" {
-  source = "./modules/repo-branch"
+# module "repo-branch" {
+#   source = "./modules/repo-branch"
 
-  repository_name = module.repo.repository_name
-}
+#   repository_name = module.repo.repository_name
+
+#   depends_on = [ module.repo ]
+# }
 
 module "repo-labels" {
   source = "./modules/repo-labels"
 
   repository_name = module.repo.repository_name
+
+  depends_on = [ module.repo ]
 }
 
 module "repo-secret" {
@@ -151,6 +156,8 @@ module "repo-secret" {
   azure_subscription_id = data.azurerm_client_config.current.subscription_id
 
   otlp_honeycomb_headers = var.otlp_honeycomb_headers
+
+  depends_on = [ module.repo ]
 }
 
 module "repo-var" {
@@ -164,6 +171,5 @@ module "repo-var" {
   build_version      = var.build_version
   framework          = var.framework
 
-  resource_group_name = module.resource_group.resource_group_name
-  acae_name           = module.container_apps.aca_environment_name
+  depends_on = [ module.repo ]
 }

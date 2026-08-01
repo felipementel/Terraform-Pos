@@ -1,11 +1,4 @@
-env_dash_abrev = "-dev"
-project_name = "aug-pos-graduacao"
-rg_location = "Brazil South"
-location = "brazilsouth"
-acr_login_server = "acrposgraduacaodev.azurecr.io"
-user_assigned_identity_id = "/subscriptions/pos-graduacao-0000/resourceGroups/rg-high-extert/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-ca-functions"
-#az identity create -g rg-high-extert -n id-ca-functions --location brazilsouth -o json --query "id" -o tsv
-
-# GitHub Actions OIDC
-github_username   = "high-extert"
-github_repository = "my-repo"
+env_abrev_dash = "-dev"
+repo_name      = "my-repo"
+rg_location    = "Brazil South"
+github_username = "example-owner"

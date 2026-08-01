@@ -46,15 +46,3 @@ variable "framework" {
   type        = string
   default     = null
 }
-
-variable "resource_group_name" {
-  description = "Resource Group name (creates AZURE_RESOURCE_GROUP_NAME var in repo when set)"
-  type        = string
-  default     = null
-}
-
-variable "acae_name" {
-  description = "Container App Environment base name (creates AZURE_ACAE_BASE var in repo when set)"
-  type        = string
-  default     = null
-}

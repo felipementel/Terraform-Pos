@@ -2,6 +2,9 @@
 *.tfvars
 !*.tfvars.example
 
+# Arquivos locais de automação
+scripts/*.local.ps1
+
 
 # Diretório de plugins e módulos do Terraform
 .terraform/

@@ -13,12 +13,6 @@ variable "project_name" {
   type        = string
 }
 
-variable "env_abrev" {
-  description = "The suffix to be added to resource names based on the environment."
-  type        = string
-  default     = ""
-}
-
 variable "env_dash_abrev" {
   description = "The suffix with dash to be added to resource names based on the environment."
   type        = string
