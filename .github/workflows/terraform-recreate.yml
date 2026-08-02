@@ -43,7 +43,7 @@ jobs:
       STORAGE_SAS_TOKEN: ${{ secrets.AZURE_STORAGE_ACCOUNT_SAS_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Configure Azure and Terraform credentials
         env:
