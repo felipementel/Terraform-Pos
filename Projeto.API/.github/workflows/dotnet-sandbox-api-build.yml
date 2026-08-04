@@ -170,7 +170,7 @@ jobs:
 
       - name: 🔍 Get-Version from csproj
         id: get_version
-        uses: felipementel/repo-444/.github/actions/dotnet/get-version@main
+        uses: felipementel/portaria/.github/actions/dotnet/get-version@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
@@ -178,7 +178,7 @@ jobs:
 
       - name: 🔍 Check Tag
         id: tag_check
-        uses: felipementel/repo-444/.github/actions/git/tag-check@main
+        uses: felipementel/portaria/.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
@@ -195,14 +195,14 @@ jobs:
           $DOTNET_ROOT/dotnet --info
 
       - name: 🧱📤 Betterleaks
-        uses: felipementel/repo-444/.github/actions/tools/security/betterleaks@main
+        uses: felipementel/portaria/.github/actions/tools/security/betterleaks@main
 
       # - name: 🐋 Docker setup
-      #   uses: felipementel/repo-444/.github/actions/tools/acr/setup@main
+      #   uses: felipementel/portaria/.github/actions/tools/acr/setup@main
 
       - name: 🧪 Dotnet Test & Coverage
         id: dotnet_test
-        uses: felipementel/repo-444/.github/actions/dotnet/dotnet-test@main
+        uses: felipementel/portaria/.github/actions/dotnet/dotnet-test@main
         with:
           tests_dir: ${{ inputs.tests_dir }}
           report_title: ${{ inputs.report_title }}
@@ -211,7 +211,7 @@ jobs:
           run_id: ${{ github.run_id }}
 
       # - name: 📸 SonarCloud Analysis
-      #   uses: felipementel/repo-444/.github/actions/tools/code-quality/sonar-cloud-dotnet@main
+      #   uses: felipementel/portaria/.github/actions/tools/code-quality/sonar-cloud-dotnet@main
       #   with:
       #     has_tests: ${{ steps.dotnet_test.outputs.has_tests }}
       #     sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -225,13 +225,13 @@ jobs:
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.dotnet_test.outputs.has_tests == 'true' }}
-        uses: felipementel/repo-444/.github/actions/tools/coverage-badge@main
+        uses: felipementel/portaria/.github/actions/tools/coverage-badge@main
         with:
           coverage_file: coveragereport/Cobertura.xml
           coverage_format: cobertura
 
       - name: 🐳 Docker Build (local, for Security scan)
-        uses: felipementel/repo-444/.github/actions/tools/acr/buildx@main
+        uses: felipementel/portaria/.github/actions/tools/acr/buildx@main
         with:
           registry: ${{ inputs.registry }}
           image_name: ${{ inputs.image_name }}
@@ -242,7 +242,7 @@ jobs:
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       # - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-      #   uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
+      #   uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main
       #   with:
       #     scan_type: 'fs'
       #     scan_ref: '${{ env.working_directory }}'
@@ -256,7 +256,7 @@ jobs:
       #     category: 'trivy-fs-vuln'
 
       # - name: 🔎 Trivy - license scan
-      #   uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
+      #   uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main
       #   with:
       #     scan_type: 'fs'
       #     scan_ref: '${{ env.working_directory }}'
@@ -270,7 +270,7 @@ jobs:
       #     category: 'trivy-fs-license'
 
       # - name: 🔎 Trivy - Image Scan (vuln, secret)
-      #   uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
+      #   uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main
       #   with:
       #     image_ref: ${{ inputs.registry }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
       #     scan_type: 'image'
@@ -283,7 +283,7 @@ jobs:
       #     category: 'trivy-image'
 
       - name: 🔎 Snyk - .NET Project Scan
-        uses: felipementel/repo-444/.github/actions/tools/security/snyk-dotnet@main
+        uses: felipementel/portaria/.github/actions/tools/security/snyk-dotnet@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
@@ -329,7 +329,7 @@ jobs:
 
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_dir != '' }}
-        uses: felipementel/repo-444/.github/actions/tools/code-quality/spectral@main
+        uses: felipementel/portaria/.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ./output_build/${{ inputs.openapi_dir }}
           node_version: ${{ env.nodeVersion }}
@@ -344,30 +344,10 @@ jobs:
           \n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-      - name: Azure login for ACR
-        uses: azure/login@v3
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Docker login to ACR
-        uses: felipementel/repo-444/.github/actions/tools/acr/login@main
-        with:
-          registry: ${{ inputs.registry }}
-
-      - name: 🐳 Docker Push
-        uses: felipementel/repo-444/.github/actions/tools/acr/push@main
-        with:
-          registry: ${{ inputs.registry }}
-          registry_username: ${{ inputs.registry_username }}
-          image_name: ${{ inputs.image_name }}
-          tag_version: ${{ steps.get_version.outputs.TAG }}
-
       - name: 🏷️ Create Tag
         id: github_tag
         if: ${{ inputs.build_mode != 'Build' }}
-        uses: felipementel/repo-444/.github/actions/git/tag-create@main
+        uses: felipementel/portaria/.github/actions/git/tag-create@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
 
@@ -391,13 +371,13 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Docker login to ACR
-        uses: felipementel/repo-444/.github/actions/tools/acr/login@main
+        uses: felipementel/portaria/.github/actions/tools/acr/login@main
         with:
           registry: ${{ inputs.registry }}
 
       - name: 🔍 Check if image exists in registry
         id: check_image
-        uses: felipementel/repo-444/.github/actions/tools/acr/check-image@main
+        uses: felipementel/portaria/.github/actions/tools/acr/check-image@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username }}
@@ -432,12 +412,12 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Docker login to ACR
-        uses: felipementel/repo-444/.github/actions/tools/acr/login@main
+        uses: felipementel/portaria/.github/actions/tools/acr/login@main
         with:
           registry: ${{ inputs.registry }}
 
       - name: 🐳 Push Docker image
-        uses: felipementel/repo-444/.github/actions/tools/acr/buildx@main
+        uses: felipementel/portaria/.github/actions/tools/acr/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username }}

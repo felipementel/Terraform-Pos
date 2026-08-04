@@ -114,8 +114,6 @@ module "container_apps" {
   env_dash_abrev                   = var.env_abrev_dash
   location                         = module.resource_group.resource_group_location
   resource_group_name              = module.resource_group.resource_group_name
-  user_assigned_identity_id        = azurerm_user_assigned_identity.aca_identity.id
-  acr_login_server                 = module.acr.acr_login_server
   log_analytics_workspace_id       = module.logs.log_analytics_workspace_id
   appinsights_connection_string    = module.logs.application_insights_connection_string
   appinsights_instrumentation_key  = module.logs.application_insights_instrumentation_key
@@ -180,10 +178,11 @@ module "repo-secret" {
 module "repo-var" {
   source = "./modules/repo-var"
 
-  repository_name    = module.repo.repository_name
-  deploy_target      = var.deploy_target
-  container_registry = var.container_registry
-  azure_acr_registry = module.acr.acr_login_server
+  repository_name            = module.repo.repository_name
+  deploy_target              = var.deploy_target
+  container_registry         = var.container_registry
+  azure_acr_registry         = module.acr.acr_login_server
+  azure_acr_pull_identity_id = azurerm_user_assigned_identity.aca_identity.id
   azure_resource_group_base = trimsuffix(
     module.resource_group.resource_group_name,
     var.env_abrev_dash

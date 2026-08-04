@@ -23,17 +23,6 @@ resource "azurerm_container_app" "container_app" {
   revision_mode                = "Single"
   workload_profile_name        = "Consumption"
 
-  # Adicionar identidade gerenciada
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [var.user_assigned_identity_id]
-  }
-
-  registry {
-    server   = var.acr_login_server
-    identity = var.user_assigned_identity_id
-  }
-
   secret {
     name  = "appinsights-connection-string"
     value = var.appinsights_connection_string
@@ -110,6 +99,10 @@ resource "azurerm_container_app" "container_app" {
 
   tags = {
     environment = replace(var.env_dash_abrev, "-", "")
+  }
+
+  lifecycle {
+    ignore_changes = [identity, registry]
   }
 
   depends_on = [

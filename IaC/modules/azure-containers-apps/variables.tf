@@ -27,16 +27,6 @@ variable "env_dash_abrev" {
   default     = ""
 }
 
-variable "user_assigned_identity_id" {
-  description = "The resource ID of the user-assigned identity used by Container Apps for private registry pulls."
-  type        = string
-}
-
-variable "acr_login_server" {
-  description = "Azure Container Registry login server used by the Container App."
-  type        = string
-}
-
 variable "log_analytics_workspace_id" {
   description = "The ID of the Log Analytics Workspace."
   type        = string

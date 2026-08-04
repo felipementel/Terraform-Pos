@@ -70,3 +70,5 @@ terraform -chdir="IaC" apply `
 terraform -chdir="IaC" destroy `
 -var-file="credential.tfvars" `
 -var-file="environments/dev.tfvars"
+
+terraform -chdir="IaC" output -raw sql_password

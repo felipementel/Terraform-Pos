@@ -20,6 +20,14 @@ inputs:
   image:
     description: 'Full image reference to deploy (e.g. ghcr.io/org/app:1.0.0)'
     required: true
+  registry_server:
+    description: 'Container registry server to configure (e.g. myacr.azurecr.io)'
+    required: false
+    default: ''
+  registry_identity:
+    description: 'Managed identity resource ID used by Container Apps to pull from the registry'
+    required: false
+    default: ''
   health_check_path:
     description: 'HTTP path for post-deploy health check (e.g. /health/live)'
     required: false
@@ -50,6 +58,23 @@ runs:
         client-id: ${{ inputs.azure_client_id }}
         tenant-id: ${{ inputs.azure_tenant_id }}
         subscription-id: ${{ inputs.azure_subscription_id }}
+
+    - name: 🔑 Configure registry managed identity
+      if: ${{ inputs.registry_server != '' && inputs.registry_identity != '' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        az containerapp identity assign \
+          --name "${{ inputs.aca_name }}" \
+          --resource-group "${{ inputs.rg_name }}" \
+          --user-assigned "${{ inputs.registry_identity }}"
+
+        az containerapp registry set \
+          --name "${{ inputs.aca_name }}" \
+          --resource-group "${{ inputs.rg_name }}" \
+          --server "${{ inputs.registry_server }}" \
+          --identity "${{ inputs.registry_identity }}"
 
     - name: 🚀 Update Azure Container App image
       shell: bash

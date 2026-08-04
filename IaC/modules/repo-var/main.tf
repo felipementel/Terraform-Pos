@@ -32,6 +32,12 @@ resource "github_actions_variable" "var_azure_acr_registry" {
   value         = var.azure_acr_registry
 }
 
+resource "github_actions_variable" "var_azure_acr_pull_identity_id" {
+  repository    = var.repository_name
+  variable_name = "AZURE_ACR_PULL_IDENTITY_ID"
+  value         = var.azure_acr_pull_identity_id
+}
+
 resource "github_actions_variable" "var_azure_resource_group_name" {
   repository    = var.repository_name
   variable_name = "AZURE_RESOURCE_GROUP_NAME"

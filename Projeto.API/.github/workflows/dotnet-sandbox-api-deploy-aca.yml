@@ -81,7 +81,7 @@ jobs:
     steps:
 
       - name: 🔐 Azure Login
-        uses: felipementel/repo-444/.github/actions/azure/az-login@main
+        uses: felipementel/portaria/.github/actions/azure/az-login@main
         with:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -89,26 +89,16 @@ jobs:
 
       - name: 🧾 Compute Azure Container App names
         id: naming
-        uses: felipementel/repo-444/.github/actions/azure/aca-naming@main
+        uses: felipementel/portaria/.github/actions/azure/aca-naming@main
         with:
           environment: ${{ inputs.environment }}
           azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
           acae_base_name: ${{ inputs.acae_base_name }}
           repo_name: ${{ github.event.repository.name }}
 
-      # - name: 🏗️ Set registry
-      #   id: registry
-      #    uses: felipementel/repo-444/.github/actions/azure/aca-registry@main
-      #   with:
-      #     registry: ${{ inputs.registry }}
-      #     registry-username: ${{ inputs.registry_username || github.actor }}
-      #     image-name: ${{ inputs.image_name }}
-      #     tag-version: ${{ inputs.tag_version }}
-      #     registry: ${{ inputs.registry }}
-
       - name: 🚀 Deploy to Azure Container App
         id: deploy
-        uses: felipementel/repo-444/.github/actions/azure/aca-deploy@main
+        uses: felipementel/portaria/.github/actions/azure/aca-deploy@main
         with:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -116,12 +106,14 @@ jobs:
           aca_name: ${{ steps.naming.outputs.AZURE_ACA_NAME }}
           rg_name: ${{ steps.naming.outputs.AZURE_RG_NAME }}
           image: ${{ inputs.registry }}${{ inputs.registry_username != '' && format('/{0}', inputs.registry_username) || '' }}/${{ inputs.image_name }}:${{ inputs.tag_version }}
+          registry_server: ${{ inputs.registry }}
+          registry_identity: ${{ vars.AZURE_ACR_PULL_IDENTITY_ID }}
           health_check_path: ${{ inputs.health_check_path }}
           poll_max_attempts: ${{ inputs.deploy_poll_max_attempts }}
           poll_interval_seconds: ${{ inputs.deploy_poll_interval_seconds }}
 
       - name: 🔬 OWASP ZAP Baseline
-        uses: felipementel/repo-444/.github/actions/tools/security/owasp-zap@main
+        uses: felipementel/portaria/.github/actions/tools/security/owasp-zap@main
         with:
           url: https://${{ steps.deploy.outputs.FQDN }}
           allow_issue_writing: 'false'
@@ -129,13 +121,13 @@ jobs:
           artifact_name: zap-report-${{ inputs.environment }}
 
       - name: 🔬 Nuclei DAST Scan
-        uses: felipementel/repo-444/.github/actions/tools/security/nuclei@main
+        uses: felipementel/portaria/.github/actions/tools/security/nuclei@main
         with:
           url: https://${{ steps.deploy.outputs.FQDN }}
           artifact_name: nuclei-report-${{ inputs.environment }}
 
       - name: 🧾 Deployment Summary
-        uses: felipementel/repo-444/.github/actions/azure/aca-summary@main
+        uses: felipementel/portaria/.github/actions/azure/aca-summary@main
         with:
           tag_version: ${{ inputs.tag_version }}
           now: ${{ github.run_id }}

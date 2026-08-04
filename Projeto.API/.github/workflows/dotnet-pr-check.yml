@@ -155,14 +155,14 @@ jobs:
 
       - name: 🔍 Get-Version from csproj
         id: get_version
-        uses: felipementel/repo-444/.github/actions/dotnet/get-version@main
+        uses: felipementel/portaria/.github/actions/dotnet/get-version@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
 
       - name: 🔍 Check Tag
         id: tag_check
-        uses: felipementel/repo-444/.github/actions/git/tag-check@main
+        uses: felipementel/portaria/.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
@@ -179,14 +179,14 @@ jobs:
           $DOTNET_ROOT/dotnet --info
 
       - name: 🧱📤 Betterleaks
-        uses: felipementel/repo-444/.github/actions/tools/security/betterleaks@main
+        uses: felipementel/portaria/.github/actions/tools/security/betterleaks@main
 
       - name: 🐋 Docker setup
-        uses: felipementel/repo-444/.github/actions/tools/acr/setup@main
+        uses: felipementel/portaria/.github/actions/tools/acr/setup@main
 
       - name: 🧪 Dotnet Test & Coverage
         id: dotnet_test
-        uses: felipementel/repo-444/.github/actions/dotnet/dotnet-test@main
+        uses: felipementel/portaria/.github/actions/dotnet/dotnet-test@main
         with:
           tests_dir: ${{ inputs.tests_dir }}
           report_title: ${{ inputs.report_title }}
@@ -195,7 +195,7 @@ jobs:
           run_id: ${{ github.run_id }}
 
       - name: 📸 SonarCloud Analysis
-        uses: felipementel/repo-444/.github/actions/tools/code-quality/sonar-cloud-dotnet@main
+        uses: felipementel/portaria/.github/actions/tools/code-quality/sonar-cloud-dotnet@main
         with:
           has_tests: ${{ steps.dotnet_test.outputs.has_tests }}
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -210,7 +210,7 @@ jobs:
           java_distro: ${{ env.javaDistro }}
 
       - name: 🐳 Docker Build (local, for Security scan)
-        uses: felipementel/repo-444/.github/actions/tools/arc/buildx@main
+        uses: felipementel/portaria/.github/actions/tools/arc/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
@@ -223,7 +223,7 @@ jobs:
           load: 'true'
 
       - name: 🍵 Snyk Security Scan
-        uses: felipementel/repo-444/.github/actions/tools/security/snyk-dotnet@main
+        uses: felipementel/portaria/.github/actions/tools/security/snyk-dotnet@main
         with:
           snyk_token: ${{ secrets.SNYK_API_KEY }}
           project_base_dir: ${{ inputs.project_base_dir }}
@@ -234,13 +234,13 @@ jobs:
           docker_build_context: ${{ inputs.docker_build_context }}
 
       - name: 🍵 Safety Python Dependency Check
-        uses: felipementel/repo-444/.github/actions/tools/security/safety-python@main
+        uses: felipementel/portaria/.github/actions/tools/security/safety-python@main
         with:
           api_key: ${{ secrets.SAFETY_API_KEY }}
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-        uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -254,7 +254,7 @@ jobs:
           category: 'trivy-fs-vuln'
 
       - name: 🔎 Trivy - license scan
-        uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -268,7 +268,7 @@ jobs:
           category: 'trivy-fs-license'
 
       - name: 🔎 Trivy - Image Scan (vuln, secret)fel
-        uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main
         with:
           image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
           scan_type: 'image'
@@ -316,7 +316,7 @@ jobs:
 
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_dir != '' }}
-        uses: felipementel/repo-444/.github/actions/tools/code-quality/spectral@main
+        uses: felipementel/portaria/.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ./output_build/${{ inputs.openapi_dir }}
           node_version: ${{ env.nodeVersion }}
@@ -341,7 +341,7 @@ jobs:
     steps:
       - name: 🔍 Check if image exists in registry
         id: check_image
-        uses: felipementel/repo-444/.github/actions/tools/acr/check-image@main
+        uses: felipementel/portaria/.github/actions/tools/acr/check-image@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}

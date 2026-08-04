@@ -30,6 +30,11 @@ variable "azure_acr_registry" {
   type        = string
 }
 
+variable "azure_acr_pull_identity_id" {
+  description = "Resource ID of the user-assigned managed identity used by Container Apps to pull from ACR"
+  type        = string
+}
+
 variable "azure_resource_group_base" {
   description = "Base resource group name used by GitHub Actions Container Apps naming"
   type        = string
