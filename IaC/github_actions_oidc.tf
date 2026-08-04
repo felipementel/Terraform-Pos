@@ -1,6 +1,6 @@
 # Entra ID Application (App Registration) for GitHub Actions
 resource "azuread_application" "github_actions_app" {
-  display_name = "github-actions-${var.repo_name}"
+  display_name = "sp-pos-graduacao-${var.repo_name}"
   owners       = [data.azurerm_client_config.current.object_id]
 }
 

@@ -13,7 +13,8 @@ $packages = @(
     @{ Id = "Microsoft.Powershell" },
     @{ Id = "JanDeDobbeleer.OhMyPosh" },
     @{ Id = "Postman.Postman" },
-    @{ Id = "HashiCorp.Terraform" }
+    @{ Id = "HashiCorp.Terraform" },
+    @{ Id = "Microsoft.AzureCLI" },
 )
 
 Write-Host "🔧 Instalando pacotes via Winget..." -ForegroundColor Cyan
