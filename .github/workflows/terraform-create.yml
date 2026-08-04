@@ -1,0 +1,77 @@
+name: Terraform Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment configuration to apply
+        required: true
+        type: choice
+        options: [dev, hom]
+      repo_name:
+        description: Repository name managed by Terraform
+        required: true
+      repo_description:
+        description: Repository description
+        required: false
+        default: ""
+      repo_visibility:
+        description: Repository visibility
+        required: true
+        type: choice
+        default: public
+        options: [public, private]
+      deploy_target:
+        description: Deployment target
+        required: true
+        type: choice
+        default: ACA
+        options: [ACA, AKS (desabilitado)]
+      framework:
+        description: Application framework
+        required: true
+        default: dotnet
+      build_version:
+        description: Runtime or SDK version
+        required: true
+        default: "10"
+
+permissions:
+  contents: read
+
+env:
+  sonar_organization: felipementel
+
+jobs:
+  apply:
+    name: Apply ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Apply infrastructure
+        uses: ./actions/terraform-apply
+        with:
+          environment: ${{ inputs.environment }}
+          repo_name: ${{ inputs.repo_name }}
+          repo_description: ${{ inputs.repo_description }}
+          repo_visibility: ${{ inputs.repo_visibility }}
+          deploy_target: ${{ inputs.deploy_target }}
+          framework: ${{ inputs.framework }}
+          build_version: ${{ inputs.build_version }}
+          github_token: ${{ secrets.TF_VAR_GITHUB_TOKEN }}
+          github_username: ${{ vars.GITHUB_USERNAME }}
+          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          sonar_token: ${{ secrets.TF_VAR_SONAR_TOKEN }}
+          sonar_organization: ${{ env.sonar_organization }}
+          snyk_api_key: ${{ secrets.TF_VAR_SNYK_API_KEY }}
+          otlp_honeycomb_headers: ${{ secrets.TF_VAR_OTLP_HONEYCOMB_HEADERS }}
+          storage_account_name: ${{ vars.TF_STATE_STORAGE_ACCOUNT }}
+          storage_container_name: ${{ vars.TF_STATE_STORAGE_CONTAINER }}
+          storage_sas_token: ${{ secrets.AZURE_STORAGE_ACCOUNT_SAS_TOKEN }}
