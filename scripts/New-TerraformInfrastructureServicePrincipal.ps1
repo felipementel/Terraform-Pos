@@ -2,7 +2,7 @@
 param(
     [string]$SubscriptionId,
 
-    [string]$DisplayName = 'sp-pos-graduacao',
+    [string]$DisplayName = 'sp-pos-graduacao-terraform',
 
     [string]$CredentialOutputPath
 )
