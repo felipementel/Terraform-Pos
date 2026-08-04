@@ -51,7 +51,7 @@ resource "azurerm_container_app" "container_app" {
 
       liveness_probe {
         transport        = "HTTP"
-        port             = 8080
+        port             = 80
         path             = "/"
         initial_delay    = 10
         interval_seconds = 10
@@ -60,7 +60,7 @@ resource "azurerm_container_app" "container_app" {
 
       readiness_probe {
         transport        = "HTTP"
-        port             = 8080
+        port             = 80
         path             = "/"
         initial_delay    = 10
         interval_seconds = 10
@@ -87,7 +87,7 @@ resource "azurerm_container_app" "container_app" {
   ingress {
     external_enabled           = true
     transport                  = "auto"
-    target_port                = 8080
+    target_port                = 80
     allow_insecure_connections = true
     client_certificate_mode    = "ignore"
 
