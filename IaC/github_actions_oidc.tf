@@ -45,7 +45,6 @@ locals {
 }
 
 # Federated Identity Credentials — one per OIDC subject (branch, tag, environment, PR)
-#checkov:skip=CKV_AZURE_249:GitHub Actions OIDC subjects are intentionally hardcoded for repository-scoped branch, tag, environment, and pull request flows and are not exposed as workflow or root variables.
 resource "azuread_application_federated_identity_credential" "github_actions_oidc" {
   for_each = local.subject_map
 
@@ -55,19 +54,4 @@ resource "azuread_application_federated_identity_credential" "github_actions_oid
   audiences      = ["api://AzureADTokenExchange"]
   issuer         = "https://token.actions.githubusercontent.com"
   subject        = each.value
-}
-
-output "github_actions_client_id" {
-  description = "Client ID to configure in GitHub Actions secrets (AZURE_CLIENT_ID)"
-  value       = azuread_application.github_actions_app.client_id
-}
-
-output "github_actions_tenant_id" {
-  description = "Tenant ID to configure in GitHub Actions secrets (AZURE_TENANT_ID)"
-  value       = data.azurerm_client_config.current.tenant_id
-}
-
-output "github_actions_subscription_id" {
-  description = "Subscription ID to configure in GitHub Actions secrets (AZURE_SUBSCRIPTION_ID)"
-  value       = data.azurerm_client_config.current.subscription_id
 }

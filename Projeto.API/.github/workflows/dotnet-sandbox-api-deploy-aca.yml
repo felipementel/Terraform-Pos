@@ -81,7 +81,7 @@ jobs:
     steps:
 
       - name: 🔐 Azure Login
-        uses: felipementel/DevSecOps.Tools/.github/actions/azure/az-login@main
+        uses: felipementel/repo-444/.github/actions/azure/az-login@main
         with:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: 🧾 Compute Azure Container App names
         id: naming
-        uses: felipementel/DevSecOps.Tools/.github/actions/azure/aca-naming@main
+        uses: felipementel/repo-444/.github/actions/azure/aca-naming@main
         with:
           environment: ${{ inputs.environment }}
           azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
@@ -98,7 +98,7 @@ jobs:
 
       # - name: 🏗️ Set registry
       #   id: registry
-      #    uses: felipementel/DevSecOps.Tools/.github/actions/azure/aca-registry@main
+      #    uses: felipementel/repo-444/.github/actions/azure/aca-registry@main
       #   with:
       #     registry: ${{ inputs.registry }}
       #     registry-username: ${{ inputs.registry_username || github.actor }}
@@ -108,7 +108,7 @@ jobs:
 
       - name: 🚀 Deploy to Azure Container App
         id: deploy
-        uses: felipementel/DevSecOps.Tools/.github/actions/azure/aca-deploy@main
+        uses: felipementel/repo-444/.github/actions/azure/aca-deploy@main
         with:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -121,7 +121,7 @@ jobs:
           poll_interval_seconds: ${{ inputs.deploy_poll_interval_seconds }}
 
       - name: 🔬 OWASP ZAP Baseline
-        uses: felipementel/DevSecOps.Tools/.github/actions/tools/security/owasp-zap@main
+        uses: felipementel/repo-444/.github/actions/tools/security/owasp-zap@main
         with:
           url: https://${{ steps.deploy.outputs.FQDN }}
           allow_issue_writing: 'false'
@@ -129,13 +129,13 @@ jobs:
           artifact_name: zap-report-${{ inputs.environment }}
 
       - name: 🔬 Nuclei DAST Scan
-        uses: felipementel/DevSecOps.Tools/.github/actions/tools/security/nuclei@main
+        uses: felipementel/repo-444/.github/actions/tools/security/nuclei@main
         with:
           url: https://${{ steps.deploy.outputs.FQDN }}
           artifact_name: nuclei-report-${{ inputs.environment }}
 
       - name: 🧾 Deployment Summary
-        uses: felipementel/DevSecOps.Tools/.github/actions/azure/aca-summary@main
+        uses: felipementel/repo-444/.github/actions/azure/aca-summary@main
         with:
           tag_version: ${{ inputs.tag_version }}
           now: ${{ github.run_id }}

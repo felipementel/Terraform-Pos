@@ -26,19 +26,7 @@ inputs:
   platforms:
     description: 'Target platforms for build (comma-separated)'
     required: false
-    default: 'linux/amd64,linux/arm64'
-  push:
-    description: 'Whether to push the image after building'
-    required: false
-    default: 'false'
-  load:
-    description: 'Whether to load the image into the local Docker daemon'
-    required: false
-    default: 'false'
-  output_tar:
-    description: 'Path to export the image as a tar file (e.g., ./my-image.tar). When set, runs docker buildx build --output=type=docker,dest=<path>'
-    required: false
-    default: ''
+    default: 'linux/amd64'
 
 runs:
   using: 'composite'
@@ -46,11 +34,7 @@ runs:
     - name: Define image repository
       shell: bash
       run: |
-        if [ -n "${{ inputs.registry_username }}" ]; then
-          IMAGE_REPOSITORY="${{ inputs.registry }}/${{ inputs.registry_username }}/${{ inputs.image_name }}"
-        else
-          IMAGE_REPOSITORY="${{ inputs.registry }}/${{ inputs.image_name }}"
-        fi
+        IMAGE_REPOSITORY="${{ inputs.registry }}/${{ inputs.image_name }}"
         echo "IMAGE_REPOSITORY=$IMAGE_REPOSITORY" >> "$GITHUB_ENV"
 
     - name: 🐳 Extract metadata (tags, labels) for Docker
@@ -60,30 +44,16 @@ runs:
         images: |
           ${{ env.IMAGE_REPOSITORY }}
 
-    - name: 🐳 Build and push image
-      if: inputs.output_tar == ''
-      uses: docker/build-push-action@v6
-      with:
-        context: ${{ inputs.context }}
-        file: ${{ inputs.dockerfile }}
-        platforms: ${{ inputs.platforms }}
-        push: ${{ inputs.push }}
-        load: ${{ inputs.load }}
-        tags: |
-          ${{ env.IMAGE_REPOSITORY }}:latest
-          ${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag_version }}
-        labels: ${{ steps.meta.outputs.labels }}
-
-    - name: 🐳 Build and export to tar
-      if: inputs.output_tar != ''
+    - name: 🐳 Build and load image locally
       shell: bash
       run: |
-        echo "Building Docker image for repository: $IMAGE_REPOSITORY"
+        echo "Building Docker image for repository: ${{ env.IMAGE_REPOSITORY }}"
         docker buildx build \
           -f ${{ inputs.dockerfile }} \
-          -t "$IMAGE_REPOSITORY:${{ inputs.tag_version }}" \
-          --output=type=docker,dest="${{ inputs.output_tar }}" \
-          "${{ inputs.context }}"
+          -t ${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag_version }} \
+          --platform ${{ inputs.platforms }} \
+          --load \
+          ${{ inputs.context }}
 
     - name: 📊 Summary
       shell: bash
@@ -94,6 +64,3 @@ runs:
         echo "- **Tags:** \`latest\`, \`${{ inputs.tag_version }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "- **Dockerfile:** \`${{ inputs.dockerfile }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "- **Platforms:** \`${{ inputs.platforms }}\`" >> "$GITHUB_STEP_SUMMARY"
-        if [ -n "${{ inputs.output_tar }}" ]; then
-          echo "- **Tar export:** \`${{ inputs.output_tar }}\`" >> "$GITHUB_STEP_SUMMARY"
-        fi

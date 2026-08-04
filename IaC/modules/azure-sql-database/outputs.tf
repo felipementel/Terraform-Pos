@@ -9,3 +9,14 @@ output "portal_connection_string" {
     random_password.sqlserver_password.result
   )
 }
+
+output "administrator_login" {
+  description = "SQL Server administrator username."
+  value       = azurerm_mssql_server.sql.administrator_login
+}
+
+output "administrator_password" {
+  description = "SQL Server administrator password."
+  value       = random_password.sqlserver_password.result
+  sensitive   = true
+}

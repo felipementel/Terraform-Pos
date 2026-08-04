@@ -143,5 +143,5 @@ variable "otlp_honeycomb_headers" {
 variable "oidc_subjects" {
   description = "GitHub Actions OIDC contexts. Each value produces an exact Entra ID federated credential subject."
   type        = set(string)
-  default     = ["branch:main", "environment:DEV", "environment:development", "environment:staging", "environment:production", "pull_request"]
+  default     = ["branch:main", "environment:development", "environment:staging", "environment:production", "pull_request"]
 }

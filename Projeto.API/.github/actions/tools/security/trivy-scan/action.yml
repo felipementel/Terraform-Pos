@@ -167,7 +167,6 @@ runs:
       with:
         name: ${{ inputs.category }}-results
         path: ${{ inputs.output_file }}
-        archive: false
         retention-days: 30
 
     - name: 📊 Summary

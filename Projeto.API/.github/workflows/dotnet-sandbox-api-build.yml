@@ -170,7 +170,7 @@ jobs:
 
       - name: 🔍 Get-Version from csproj
         id: get_version
-        uses: felipementel/DevSecOps.Tools/.github/actions/dotnet/get-version@main
+        uses: felipementel/repo-444/.github/actions/dotnet/get-version@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
@@ -178,7 +178,7 @@ jobs:
 
       - name: 🔍 Check Tag
         id: tag_check
-        uses: felipementel/DevSecOps.Tools/.github/actions/git/tag-check@main
+        uses: felipementel/repo-444/.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
@@ -195,23 +195,23 @@ jobs:
           $DOTNET_ROOT/dotnet --info
 
       - name: 🧱📤 Betterleaks
-        uses: felipementel/DevSecOps.Tools/.github/actions/tools/security/betterleaks@main
+        uses: felipementel/repo-444/.github/actions/tools/security/betterleaks@main
 
       # - name: 🐋 Docker setup
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/tools/acr/setup@main
+      #   uses: felipementel/repo-444/.github/actions/tools/acr/setup@main
 
-      # - name: 🧪 Dotnet Test & Coverage
-      #   id: dotnet_test
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/dotnet/dotnet-test@main
-      #   with:
-      #     tests_dir: ${{ inputs.tests_dir }}
-      #     report_title: ${{ inputs.report_title }}
-      #     sonar_exclusions: ${{ inputs.sonar_exclusions }}
-      #     run_number: ${{ github.run_number }}
-      #     run_id: ${{ github.run_id }}
+      - name: 🧪 Dotnet Test & Coverage
+        id: dotnet_test
+        uses: felipementel/repo-444/.github/actions/dotnet/dotnet-test@main
+        with:
+          tests_dir: ${{ inputs.tests_dir }}
+          report_title: ${{ inputs.report_title }}
+          sonar_exclusions: ${{ inputs.sonar_exclusions }}
+          run_number: ${{ github.run_number }}
+          run_id: ${{ github.run_id }}
 
       # - name: 📸 SonarCloud Analysis
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/tools/code-quality/sonar-cloud-dotnet@main
+      #   uses: felipementel/repo-444/.github/actions/tools/code-quality/sonar-cloud-dotnet@main
       #   with:
       #     has_tests: ${{ steps.dotnet_test.outputs.has_tests }}
       #     sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -225,27 +225,24 @@ jobs:
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.dotnet_test.outputs.has_tests == 'true' }}
-        uses: felipementel/DevSecOps.Tools/.github/actions/tools/coverage-badge@main
+        uses: felipementel/repo-444/.github/actions/tools/coverage-badge@main
         with:
           coverage_file: coveragereport/Cobertura.xml
           coverage_format: cobertura
 
-      # - name: 🐳 Docker Build (local, for Security scan)
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/tools/acr/buildx@main
-      #   with:
-      #     registry: ${{ inputs.registry }}
-      #     registry_username: ${{ inputs.registry_username || github.actor }}
-      #     image_name: ${{ inputs.image_name }}
-      #     tag_version: ${{ steps.get_version.outputs.TAG }}
-      #     dockerfile: ${{ inputs.dockerfile_dir }}/Dockerfile
-      #     context: ${{ inputs.docker_build_context }}
-      #     platforms: 'linux/amd64'
-      #     push: 'false'
-      #     load: 'true'
+      - name: 🐳 Docker Build (local, for Security scan)
+        uses: felipementel/repo-444/.github/actions/tools/acr/buildx@main
+        with:
+          registry: ${{ inputs.registry }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ steps.get_version.outputs.TAG }}
+          dockerfile: ${{ inputs.dockerfile_dir }}/Dockerfile
+          context: ${{ inputs.docker_build_context }}
+          platforms: 'linux/amd64'
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       # - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/tools/security/trivy-scan@main
+      #   uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
       #   with:
       #     scan_type: 'fs'
       #     scan_ref: '${{ env.working_directory }}'
@@ -259,7 +256,7 @@ jobs:
       #     category: 'trivy-fs-vuln'
 
       # - name: 🔎 Trivy - license scan
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/tools/security/trivy-scan@main
+      #   uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
       #   with:
       #     scan_type: 'fs'
       #     scan_ref: '${{ env.working_directory }}'
@@ -273,9 +270,9 @@ jobs:
       #     category: 'trivy-fs-license'
 
       # - name: 🔎 Trivy - Image Scan (vuln, secret)
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/tools/security/trivy-scan@main
+      #   uses: felipementel/repo-444/.github/actions/tools/security/trivy-scan@main
       #   with:
-      #     image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
+      #     image_ref: ${{ inputs.registry }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
       #     scan_type: 'image'
       #     format: 'sarif'
       #     output_file: 'trivy-image-results.sarif'
@@ -285,46 +282,57 @@ jobs:
       #     trivyignores: ${{ steps.check_trivyignore.outputs.path }}
       #     category: 'trivy-image'
 
-      # - name: 🚀 Build to generate OpenAPI JSON
-      #   if: ${{ inputs.openapi_dir != '' }}
-      #   shell: bash
-      #   run: |
-      #     dotnet restore \
-      #       ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
-      #     dotnet build \
-      #       ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj \
-      #       --no-restore \
-      #       --output ./output_build
+      - name: 🔎 Snyk - .NET Project Scan
+        uses: felipementel/repo-444/.github/actions/tools/security/snyk-dotnet@main
+        with:
+          project_base_dir: ${{ inputs.project_base_dir }}
+          main_project: ${{ inputs.main_project }}
+          solution_file_name: ${{ inputs.solution_file_name }}
+          image_name: ${{ inputs.registry }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
+          dockerfile_dir: ${{ inputs.dockerfile_dir }}
+          docker_build_context: ${{ inputs.docker_build_context }}
+          snyk_token: ${{ secrets.SNYK_API_KEY }}
 
-      # - name: 🔍 Check OpenAPI files
-      #   if: ${{ inputs.openapi_dir != '' }}
-      #   shell: bash
-      #   run: |
-      #     openapi_path="./output_build/${{ inputs.openapi_dir }}"
+      - name: 🚀 Build to generate OpenAPI JSON
+        if: ${{ inputs.openapi_dir != '' }}
+        shell: bash
+        run: |
+          dotnet restore \
+            ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
+          dotnet build \
+            ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj \
+            --no-restore \
+            --output ./output_build
 
-      #     if find "$openapi_path" -maxdepth 1 -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.yml' \) | grep -q .; then
-      #       echo -e "${GREEN}✅ OpenAPI specification files found in ${openapi_path}."
-      #     else
-      #       echo -e "${YELLOW}⚠️ No OpenAPI specification files found in ${openapi_path}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
-      #       exit 1
-      #     fi
+      - name: 🔍 Check OpenAPI files
+        if: ${{ inputs.openapi_dir != '' }}
+        shell: bash
+        run: |
+          openapi_path="./output_build/${{ inputs.openapi_dir }}"
 
-      # - name: 📤 Upload OpenAPI artifacts
-      #   if: ${{ inputs.openapi_dir != '' }}
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: OpenAPI-Specs
-      #     path: |
-      #       ./output_build/${{ inputs.openapi_dir }}/*.json
-      #       ./output_build/${{ inputs.openapi_dir }}/*.yaml
-      #       ./output_build/${{ inputs.openapi_dir }}/*.yml
+          if find "$openapi_path" -maxdepth 1 -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.yml' \) | grep -q .; then
+            echo -e "${GREEN}✅ OpenAPI specification files found in ${openapi_path}."
+          else
+            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in ${openapi_path}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
+            exit 1
+          fi
 
-      # - name: 🚀 Spectral OpenAPI Lint
-      #   if: ${{ inputs.openapi_dir != '' }}
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/tools/code-quality/spectral@main
-      #   with:
-      #     openapi_files_path: ./output_build/${{ inputs.openapi_dir }}
-      #     node_version: ${{ env.nodeVersion }}
+      - name: 📤 Upload OpenAPI artifacts
+        if: ${{ inputs.openapi_dir != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenAPI-Specs
+          path: |
+            ./output_build/${{ inputs.openapi_dir }}/*.json
+            ./output_build/${{ inputs.openapi_dir }}/*.yaml
+            ./output_build/${{ inputs.openapi_dir }}/*.yml
+
+      - name: 🚀 Spectral OpenAPI Lint
+        if: ${{ inputs.openapi_dir != '' }}
+        uses: felipementel/repo-444/.github/actions/tools/code-quality/spectral@main
+        with:
+          openapi_files_path: ./output_build/${{ inputs.openapi_dir }}
+          node_version: ${{ env.nodeVersion }}
 
       - name: 🧾 Write to workflow job summary
         run: |
@@ -336,12 +344,32 @@ jobs:
           \n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-      # - name: 🏷️ Create Tag
-      #   id: github_tag
-      #   if: ${{ inputs.build_mode != 'Build' }}
-      #   uses: felipementel/DevSecOps.Tools/.github/actions/git/tag-create@main
-      #   with:
-      #     tag: ${{ steps.get_version.outputs.TAG }}
+      - name: Azure login for ACR
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Docker login to ACR
+        uses: felipementel/repo-444/.github/actions/tools/acr/login@main
+        with:
+          registry: ${{ inputs.registry }}
+
+      - name: 🐳 Docker Push
+        uses: felipementel/repo-444/.github/actions/tools/acr/push@main
+        with:
+          registry: ${{ inputs.registry }}
+          registry_username: ${{ inputs.registry_username }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ steps.get_version.outputs.TAG }}
+
+      - name: 🏷️ Create Tag
+        id: github_tag
+        if: ${{ inputs.build_mode != 'Build' }}
+        uses: felipementel/repo-444/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}
 
   check_image:
     name: Check if image exists
@@ -363,13 +391,13 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Docker login to ACR
-        uses: felipementel/DevSecOps.Tools/.github/actions/tools/acr/login@main
+        uses: felipementel/repo-444/.github/actions/tools/acr/login@main
         with:
           registry: ${{ inputs.registry }}
 
       - name: 🔍 Check if image exists in registry
         id: check_image
-        uses: felipementel/DevSecOps.Tools/.github/actions/tools/acr/check-image@main
+        uses: felipementel/repo-444/.github/actions/tools/acr/check-image@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username }}
@@ -404,12 +432,12 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Docker login to ACR
-        uses: felipementel/DevSecOps.Tools/.github/actions/tools/acr/login@main
+        uses: felipementel/repo-444/.github/actions/tools/acr/login@main
         with:
           registry: ${{ inputs.registry }}
 
       - name: 🐳 Push Docker image
-        uses: felipementel/DevSecOps.Tools/.github/actions/tools/acr/buildx@main
+        uses: felipementel/repo-444/.github/actions/tools/acr/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username }}

@@ -5,9 +5,10 @@ inputs:
   registry:
     description: 'Container registry URL (e.g., ghcr.io, docker.io)'
     required: true
-    registry_username:
-      description: 'Username for registry authentication'
-      required: true
+  registry_username:
+    description: 'Username or namespace in the registry path'
+    required: false
+    default: ''
   image_name:
     description: 'Docker image name (without registry prefix)'
     required: true
@@ -31,8 +32,7 @@ runs:
     - name: 🐳 Docker push
       shell: bash
       run: |
-        docker push $IMAGE_REPOSITORY:${{ inputs.tag_version }}
-        docker push $IMAGE_REPOSITORY:latest
+        docker push ${{ env.IMAGE_REPOSITORY }}:${{ inputs.tag_version }}
 
     - name: 📊 Summary
       shell: bash
@@ -40,5 +40,5 @@ runs:
         echo "### 🐳 Docker Push" >> "$GITHUB_STEP_SUMMARY"
         echo "" >> "$GITHUB_STEP_SUMMARY"
         echo "- **Registry:** \`${{ inputs.registry }}\`" >> "$GITHUB_STEP_SUMMARY"
-        echo "- **Image:** \`$IMAGE_REPOSITORY\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "- **Image:** \`${{ env.IMAGE_REPOSITORY }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "- **Tags:** \`latest\`, \`${{ inputs.tag_version }}\`" >> "$GITHUB_STEP_SUMMARY"

@@ -17,6 +17,10 @@ inputs:
   image_name:
     description: 'Image name for container scan'
     required: true
+  dockerfile_dir:
+    description: 'Folder containing the Dockerfile (relative to repo root)'
+    required: false
+    default: 'docker'
   docker_build_context:
     description: 'Docker build context (e.g. src/Project/Project or .)'
     required: false
@@ -30,32 +34,20 @@ runs:
       run: |
         dotnet restore \
           ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
-      # dotnet build \
-      #   ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj \
-      #   --no-restore \
-      #   --output ./output_build
 
     - name: 🍵 Snyk Setup
       uses: snyk/actions/setup@master
 
-    # - name: 🍵 Build a Docker image
+    # - name: 🍵 Snyk Container Monitor
     #   shell: bash
+    #   env:
+    #     SNYK_TOKEN: ${{ inputs.snyk_token }}
     #   run: |
-    #     docker buildx build \
-    #       -t felipementel/${{ inputs.image_name }} \
-    #       -f ${{ inputs.docker-file-fullpath }} \
-    #       ${{ inputs.docker_build_context }}
-
-    - name: 🍵 Snyk Container Monitor
-      shell: bash
-      env:
-        SNYK_TOKEN: ${{ inputs.snyk_token }}
-      run: |
-        snyk container monitor \
-          ${{ inputs.image_name }} \
-          --app-vulns \
-          --exclude-base-image-vulns \
-          --file=${{ inputs.dockerfile_dir }}/Dockerfile 
+    #     snyk container monitor \
+    #       ${{ inputs.image_name }} \
+    #       --app-vulns \
+    #       --exclude-base-image-vulns \
+    #       --file=${{ inputs.dockerfile_dir }}/Dockerfile
 
     - name: 🍵 Run Snyk to check for vulnerabilities
       shell: bash

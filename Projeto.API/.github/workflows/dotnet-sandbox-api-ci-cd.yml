@@ -26,7 +26,7 @@ on:
 jobs:
   build:
     name: DevSecOps Pipeline
-    uses: felipementel/DevSecOps.Tools/.github/workflows/dotnet-sandbox-api-build.yml@main
+    uses: felipementel/repo-444/.github/workflows/dotnet-sandbox-api-build.yml@main
     with:
       build_mode: ${{ github.event_name == 'workflow_dispatch' && inputs.buildMode || 'Build' }}
       environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environments || 'development' }}
@@ -60,7 +60,7 @@ jobs:
     name: Deploy to Azure Container Apps
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.buildMode == 'Build + Tag Validation + Deploy' && needs.build.outputs.image_exists == 'false' }}
     needs: [build]
-    uses: felipementel/DevSecOps.Tools/.github/workflows/dotnet-sandbox-api-deploy-aca.yml@main
+    uses: felipementel/repo-444/.github/workflows/dotnet-sandbox-api-deploy-aca.yml@main
     permissions:
       id-token: write
       contents: read
