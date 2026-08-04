@@ -1,0 +1,66 @@
+name: Checkov Policy Scan
+description: Composite action to scan Terraform IaC with Checkov for policy and compliance violations
+
+inputs:
+  directory:
+    description: 'Directory containing Terraform files to scan'
+    required: false
+    default: '.'
+  framework:
+    description: 'Framework to scan (terraform, cloudformation, kubernetes, arm, etc.)'
+    required: false
+    default: 'terraform'
+  output_format:
+    description: 'Output formats (comma-separated: cli, json, sarif, etc.)'
+    required: false
+    default: 'cli,json'
+  output_file_path:
+    description: 'Output destinations (comma-separated: console and/or file path)'
+    required: false
+    default: 'console,checkov-results.json,results.sarif'
+  soft_fail:
+    description: 'Do not return a non-zero exit code if there are failed checks'
+    required: false
+    default: 'true'
+  quiet:
+    description: 'Only print failed checks'
+    required: false
+    default: 'true'
+  skip_check:
+    description: 'Comma-separated list of check IDs to skip (e.g. CKV_AWS_1,CKV_AWS_2)'
+    required: false
+    default: ''
+  upload_results:
+    description: 'Upload Checkov results as artifact'
+    required: false
+    default: 'true'
+  artifact_name:
+    description: 'Name of the uploaded artifact'
+    required: false
+    default: 'checkov-results'
+
+runs:
+  using: 'composite'
+  steps:
+
+    - name: 🛡️ Checkov — Policy Scan
+      uses: bridgecrewio/checkov-action@v12
+      with:
+        directory: ${{ inputs.directory }}
+        framework: ${{ inputs.framework }}
+        output_format: ${{ inputs.output_format }}
+        output_file_path: ${{ inputs.output_file_path }}
+        soft_fail: ${{ inputs.soft_fail }}
+        quiet: ${{ inputs.quiet }}
+        skip_check: ${{ inputs.skip_check }}
+
+    - name: 📤 Upload Checkov results
+      if: ${{ inputs.upload_results == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: |
+          checkov-results.json
+          results.sarif
+        if_no_files_found: ignore
+        retention_days: 7
