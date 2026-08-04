@@ -15,7 +15,7 @@ body:
     attributes:
       label: Informações sobre contato
       description: Como podemos entrar em contato com você se precisarmos de mais informações?
-      placeholder: ex. email@canaldeploy.com
+      placeholder: ex. email@pos-graduacao.com
     validations:
       required: false
   - type: textarea

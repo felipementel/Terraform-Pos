@@ -147,11 +147,11 @@ jobs:
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
-          sparse_checkout: |
+          sparse-checkout: |
             src/
             tests/
             docker/
-          sparse_checkout_cone_mode: false
+          sparse-checkout_cone_mode: false
 
       - name: 🔍 Get-Version from csproj
         id: get_version
@@ -319,7 +319,7 @@ jobs:
         uses: felipementel/portaria/.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ./output_build/${{ inputs.openapi_dir }}
-          node_version: ${{ env.nodeVersion }}
+          node-version: ${{ env.nodeVersion }}
 
       - name: 🧾 Write to workflow job summary
         run: |

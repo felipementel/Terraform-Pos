@@ -24,11 +24,11 @@ jobs:
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
-          sparse_checkout: |
+          sparse-checkout: |
             src/
             docker/
             .trivyignore.yaml
-          sparse_checkout_cone_mode: false
+          sparse-checkout_cone_mode: false
 
       - name: 🔎 Trivy — Filesystem Scan (vuln, secret, misconfig)
         uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main

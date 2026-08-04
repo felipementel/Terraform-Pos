@@ -5,7 +5,7 @@ inputs:
   openapi_files_path:
     description: 'Path to the folder containing the OpenAPI JSON/YAML files to lint (e.g. ./output_build/open-api)'
     required: true
-  node_version:
+  node-version:
     description: 'Node.js version'
     required: false
     default: '24'
@@ -13,10 +13,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: 🎗️ Setup Node.js ${{ inputs.node_version }}
+    - name: 🎗️ Setup Node.js ${{ inputs.node-version }}
       uses: actions/setup-node@v4
       with:
-        node_version: ${{ inputs.node_version }}
+        node-version: ${{ inputs.node-version }}
 
     - name: 🎗️ Install Spectral
       shell: bash
