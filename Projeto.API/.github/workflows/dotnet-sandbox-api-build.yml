@@ -167,7 +167,7 @@ jobs:
             src/
             tests/
             docker/
-          sparse-checkout_cone_mode: false
+          sparse-checkout-cone-mode: false
 
       - name: 🔍 Get-Version from csproj
         id: get_version
@@ -364,6 +364,16 @@ jobs:
       contents: read
 
     steps:
+
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          sparse-checkout: |
+            .github/
+          sparse-checkout-cone-mode: false
+
       - name: Azure login for ACR
         uses: azure/login@v3
         with:
@@ -404,7 +414,7 @@ jobs:
             .github/
             src/
             docker/
-          sparse-checkout_cone_mode: false
+          sparse-checkout-cone-mode: false
 
       - name: Azure login for ACR
         uses: azure/login@v3

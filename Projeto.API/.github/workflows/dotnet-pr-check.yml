@@ -152,7 +152,7 @@ jobs:
             src/
             tests/
             docker/
-          sparse-checkout_cone_mode: false
+          sparse-checkout-cone-mode: false
 
       - name: 🔍 Get-Version from csproj
         id: get_version
