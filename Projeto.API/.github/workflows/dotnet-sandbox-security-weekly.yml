@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout
-        uses: felipementel/portaria/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/github/checkout
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -31,7 +31,7 @@ jobs:
           sparse-checkout_cone_mode: false
 
       - name: 🔎 Trivy — Filesystem Scan (vuln, secret, misconfig)
-        uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan
         with:
           scan_type: 'fs'
           scan_ref: '.'
@@ -45,7 +45,7 @@ jobs:
           category: 'trivy-weekly-fs'
 
       - name: 🔎 Trivy — License Scan
-        uses: felipementel/portaria/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan
         with:
           scan_type: 'fs'
           scan_ref: '.'
@@ -73,7 +73,7 @@ jobs:
 
     steps:
       - name: 🔐 Azure Login
-        uses: felipementel/portaria/.github/actions/azure/az-login@main
+        uses: ./.github/actions/azure/az-login
         with:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -81,7 +81,7 @@ jobs:
 
       - name: 🧾 Compute Azure Container App names
         id: naming
-        uses: felipementel/portaria/.github/actions/azure/aca-naming@main
+        uses: ./.github/actions/azure/aca-naming
         with:
           environment: ${{ matrix.environment }}
           azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
@@ -100,7 +100,7 @@ jobs:
           echo "FQDN=$FQDN" >> $GITHUB_OUTPUT
 
       - name: 🕷️ OWASP ZAP Baseline
-        uses: felipementel/portaria/.github/actions/tools/security/owasp-zap@main
+        uses: ./.github/actions/tools/security/owasp-zap
         with:
           url: https://${{ steps.fqdn.outputs.FQDN }}
           allow_issue_writing: 'false'
@@ -108,7 +108,7 @@ jobs:
           artifact_name: zap-weekly-report-${{ matrix.environment }}
 
       - name: 🔬 Nuclei DAST Scan
-        uses: felipementel/portaria/.github/actions/tools/security/nuclei@main
+        uses: ./.github/actions/tools/security/nuclei
         with:
           url: https://${{ steps.fqdn.outputs.FQDN }}
           artifact_name: nuclei-weekly-report-${{ matrix.environment }}
